@@ -78,6 +78,7 @@ const _ = grpc.SupportPackageIsVersion4
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type HelloServiceClient interface {
 	Hello(ctx context.Context, in *String, opts ...grpc.CallOption) (*String, error)
+
 }
 
 type helloServiceClient struct {
@@ -100,8 +101,11 @@ func (c *helloServiceClient) Hello(ctx context.Context, in *String, opts ...grpc
 // HelloServiceServer is the server API for HelloService service.
 type HelloServiceServer interface {
 	Hello(context.Context, *String) (*String, error)
+	Channel(HelloService_ChannelServer) error
+
 }
 
+// 注册 服务到grpc 服务器
 func RegisterHelloServiceServer(s *grpc.Server, srv HelloServiceServer) {
 	s.RegisterService(&_HelloService_serviceDesc, srv)
 }
@@ -161,3 +165,72 @@ var fileDescriptor_hello_ecd8383f31bbf81e = []byte{
 	0x90, 0x7e, 0x3d, 0x88, 0x66, 0x29, 0x14, 0x5e, 0x12, 0x1b, 0xd8, 0x06, 0x63, 0x40, 0x00, 0x00,
 	0x00, 0xff, 0xff, 0xa1, 0x2a, 0xa2, 0x5a, 0x70, 0x00, 0x00, 0x00,
 }
+
+
+type HelloService_ChannelServer interface {
+	Send(*String) error
+	Recv() (*String, error)
+	grpc.ServerStream
+}
+
+type HelloService_ChannelClient interface {
+	Send(*String) error
+	Recv() (*String, error)
+	grpc.ClientStream
+}
+
+
+func (p *HelloServiceImpl) Channel(stream HelloService_ChannelServer) error {
+	for {
+		args, err := stream.Recv()
+		if err != nil {
+			if err == io.EOF {
+				return nil
+			}
+			return err
+		}
+
+		reply := &String{Value: "hello:" + args.GetValue()}
+
+		err = stream.Send(reply)
+		if err != nil {
+			return err
+		}
+	}
+}
+
+
+
+func main() {
+	// 初始化一个grpc服务器
+	grpcServer := grpc.NewServer()
+	RegisterHelloServiceServer(grpcServer, new(HelloServiceImpl))
+
+	lis, err := net.Listen("tcp", ":1234")
+	if err != nil {
+		log.Fatal(err)
+	}
+	grpcServer.Serve(lis)
+
+}
+
+
+func client() {
+	//
+	conn, err := grpc.Dial("localhost:1234", grpc.WithInsecure())
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer conn.Close()
+
+	client := NewHelloServiceClient(conn)
+	reply, err := client.Hello(context.Background(), &String{Value: "hello"})
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(reply.GetValue())
+
+}
+
+
+
