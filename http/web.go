@@ -1,17 +1,11 @@
 package main
 
 import (
+	"log"
 	"net/http"
 	"os"
-	"io/ioutil"
-	"log"
+	_ "net/http/pprof"
 )
-
-type userError struct {
-	error string
-	Message string
-}
-
 
 
 // 类似 接口
@@ -22,7 +16,7 @@ func errWarapper(handler appHandler) func(http.ResponseWriter, *http.Request) {
 		err := handler(w, r)
 		if err != nil {
 			log.Fatal(err)
-			switch  {
+			switch {
 			case os.IsNotExist(err):
 				http.Error(w, "File not exit", http.StatusNotFound)
 			case os.IsPermission(err):
@@ -35,18 +29,20 @@ func errWarapper(handler appHandler) func(http.ResponseWriter, *http.Request) {
 }
 
 func listHandler(w http.ResponseWriter, r *http.Request) error {
-	path := r.URL.Path[len("/list/"):]
-	file, err := os.Open(path)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	all, err := ioutil.ReadAll(file)
-	if err != nil {
-		return err
-	}
-	w.Write(all)
+	w.Write([]byte("hello"))
+	//path := r.URL.Path[len("/list/"):]
+	//file, err := os.Open(path)
+	//if err != nil {
+	//	return err
+	//}
+	//defer file.Close()
+	//
+	//all, err := ioutil.ReadAll(file)
+	//if err != nil {
+	//	return err
+	//}
+	//w.Write(all)
+	//return nil
 	return nil
 }
 
