@@ -5,19 +5,22 @@ import "fmt"
 type ConcurrentEngine struct {
 	Scheduler Scheduler
 	WorkerCount int
+	ItemChan chan interface{}
 }
 
 type Scheduler interface {
 	Submit(Request)
 	ConfigureWorkerChan(chan Request)
+	WorkerReady(chan Request)
+	Run()
 }
 
 
 
 func (e *ConcurrentEngine) Run(seeds ...Request)  {
-
-	in := make(chan Request)
 	out := make(chan ParserResult)
+	in := make(chan Request)
+	//out := make(chan ParserResult)
 
 	e.Scheduler.ConfigureWorkerChan(in)
 

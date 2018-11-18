@@ -9,12 +9,12 @@ type ListNode struct {
 	Val int
 	Next *ListNode
 }
-func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
+func addTwoNumbers(l1 *ListNode, l2 *ListNode) {
 	var m []int
 	p := l1
 	for {
+		m = append(m, p.Val)
 		if p.Next != nil {
-			m = append(m, p.Val)
 			p = p.Next
 		} else {
 			break
@@ -33,8 +33,8 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	var n []int
 	q := l2
 	for {
+		n = append(n, p.Val)
 		if q.Next != nil {
-			n = append(n, p.Val)
 			p = p.Next
 		} else {
 			break
@@ -53,14 +53,15 @@ func addTwoNumbers(l1 *ListNode, l2 *ListNode) *ListNode {
 	x := l1Ten + l2Ten
 	y := strconv.Itoa(x)
 	for i,s := range  []byte(y) {
-		fmt.Println(i)
-		fmt.Println(s)
-		strconv.Atoi(string(s))
-		//l1 = ListNode{Val:varV, Next:nil}
+		fmt.Println(i, s)
 
 	}
 }
 
 func main()  {
-	
+	l1 := &ListNode{2, &ListNode{4, &ListNode{Val:3}}}
+	l2 := &ListNode{5, &ListNode{6, &ListNode{Val:7}}}
+
+
+	addTwoNumbers(l1, l2)
 }

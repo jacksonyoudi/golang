@@ -9,22 +9,20 @@ import (
 )
 
 type Profile struct {
-	Name string
-	Gender string
-	Age int
-	Height int
-	Weight int
-	Income string
-	Marriage string
-	Endcation string
+	Name       string
+	Gender     string
+	Age        int
+	Height     int
+	Weight     int
+	Income     string
+	Marriage   string
+	Endcation  string
 	Occupation string
-	Hokou string
-	Xinzuo string
-	House string
-	Car string
+	Hokou      string
+	Xinzuo     string
+	House      string
+	Car        string
 }
-
-
 
 var ageRe = regexp.MustCompile(`<td><span class="label">年龄：</span>([0-9]+)岁</td>`)
 var heightRe = regexp.MustCompile(`<td><span class="label">身高：</span>([0-9]+)CM</td>`)
@@ -39,9 +37,7 @@ var carRe = regexp.MustCompile(`<td><span class="label">是否购车：</span><s
 var weightRe = regexp.MustCompile(`<td><span class="label">体重：</span><span field="">([^<]+)</span></td>`)
 var xinzuoRe = regexp.MustCompile(`<td><span class="label">星座：</span><span field="">([^<]+)</span></td>`)
 
-
-
-func ParseProfile(contents []byte, name string) engine.ParserResult  {
+func ParseProfile(contents []byte, name string) engine.ParserResult {
 
 	profile := model.Profile{}
 	profile.Name = name
@@ -59,7 +55,6 @@ func ParseProfile(contents []byte, name string) engine.ParserResult  {
 		profile.Height = height
 	}
 
-
 	weight, err := strconv.Atoi(extracString(contents, weightRe))
 
 	if err == nil {
@@ -71,7 +66,6 @@ func ParseProfile(contents []byte, name string) engine.ParserResult  {
 	if err == nil {
 		profile.Income = income
 	}
-
 
 	gender := extracString(contents, genderRe)
 
@@ -85,14 +79,11 @@ func ParseProfile(contents []byte, name string) engine.ParserResult  {
 		profile.Marriage = marriage
 	}
 
-
 	edu := extracString(contents, eduRe)
 
 	if err == nil {
 		profile.Endcation = edu
 	}
-
-
 
 	hokou := extracString(contents, hokouRe)
 
@@ -106,16 +97,11 @@ func ParseProfile(contents []byte, name string) engine.ParserResult  {
 		profile.House = house
 	}
 
-
-
 	car := extracString(contents, carRe)
 
 	if err == nil {
 		profile.Car = car
 	}
-
-
-
 
 	xinzuo := extracString(contents, xinzuoRe)
 
@@ -131,14 +117,14 @@ func ParseProfile(contents []byte, name string) engine.ParserResult  {
 
 	fmt.Printf("%v", profile)
 	result := engine.ParserResult{
-		Items: []interface{} {profile},
+		Items: engine.Item{
+			Url: "",
+			Id:  "", Type: "zhenai", Payload: profile},
 	}
 	return result
 }
 
-
-
-func extracString(content []byte, re *regexp.Regexp) string  {
+func extracString(content []byte, re *regexp.Regexp) string {
 	match := re.FindSubmatch(content)
 
 	if len(match) >= 2 {
